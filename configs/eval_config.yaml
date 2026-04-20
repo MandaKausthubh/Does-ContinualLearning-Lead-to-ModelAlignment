@@ -1,0 +1,57 @@
+# Evaluation Configuration
+
+# Bias measurement settings
+bias_measurement:
+  # Subsampling for efficiency (set to null for full dataset)
+  subsample_size: 1000
+
+  # Number of samples to run bias eval on
+  num_bias_samples: 500
+
+  # Cache settings
+  cache_dir: "./cache/eval"
+  use_cache: true
+
+  # Distributed evaluation
+  distributed_eval: true
+
+  # Gender swap settings
+  gender_swap:
+    pronouns:
+      he: "she"
+      she: "he"
+      his: "her"
+      her: "his"
+      him: "her"
+      himself: "herself"
+      herself: "himself"
+      man: "woman"
+      woman: "man"
+      men: "women"
+      women: "men"
+      male: "female"
+      female: "male"
+    names_file: "./data/male_female_names.json"  # Optional: for name swapping
+
+# Sentiment analysis model
+sentiment:
+  model_name: "cardiffnlp/twitter-roberta-base-sentiment-latest"
+  batch_size: 32
+  device: "auto"  # auto, cpu, cuda
+
+# Toxicity analysis model
+toxicity:
+  model_name: "detoxify/unbiased-small"  # or "roberta-hate-speech-dynabench-r4-base"
+  batch_size: 32
+  device: "auto"
+
+# Evaluation metrics output
+output:
+  metrics_file: "bias_metrics.json"
+  plots_dir: "./results/plots"
+  logs_dir: "./results/logs"
+
+  # Statistical test settings
+  statistical_tests:
+    confidence_level: 0.95
+    effect_size_metric: "cohens_d"

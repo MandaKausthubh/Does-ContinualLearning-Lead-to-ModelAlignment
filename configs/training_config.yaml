@@ -1,0 +1,71 @@
+# Training Configuration
+
+# Device settings
+device:
+  type: "tpu"  # Options: tpu, cuda, cpu
+  num_devices: 8  # Number of TPU cores/GPUs
+
+# Distributed training
+distributed:
+  backend: "xla"  # xla for TPUs, nccl for GPUs
+  world_size: 8
+
+# Training hyperparameters
+training:
+  # General settings
+  seed: 42
+  output_dir: "./experiments"
+
+  # Phase 1: Baseline/General Fine-tuning
+  phase1:
+    dataset: "databricks/databricks-dolly-15k"  # or "OpenAssistant/oasst1"
+    batch_size: 4
+    gradient_accumulation_steps: 4
+    num_epochs: 3
+    max_seq_length: 512
+    learning_rate: 2.0e-5
+    weight_decay: 0.01
+    warmup_ratio: 0.03
+    max_grad_norm: 1.0
+    save_steps: 500
+    eval_steps: 500
+    logging_steps: 10
+
+  # Phase 2: Alignment/Debiasing Fine-tuning
+  phase2:
+    dataset: "stereoset"  # Will be loaded from HuggingFace or local
+    batch_size: 4
+    gradient_accumulation_steps: 4
+    num_epochs: 5
+    max_seq_length: 512
+    learning_rate: 1.0e-5
+    weight_decay: 0.01
+    warmup_ratio: 0.05
+    max_grad_norm: 1.0
+    save_steps: 200
+    eval_steps: 200
+    logging_steps: 10
+
+  # SDFT specific settings
+  sdft:
+    enabled: true
+    alpha: 0.5  # Distillation weight (0-1)
+    temperature: 2.0  # Softmax temperature for distillation
+    use_reference_model: true  # Use frozen reference model for distillation
+    reference_model_path: null  # If null, uses initial checkpoint
+
+# Optimization
+optimization:
+  fp16: false
+  bf16: true
+  gradient_checkpointing: true
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  group_by_length: true
+
+# Checkpointing
+checkpoint:
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
