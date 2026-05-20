@@ -57,14 +57,14 @@ Large language models exhibit biases related to gender, race, and religion due t
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd llm-continual-alignment
+git clone https://github.com/MandaKausthubh/Does-ContinualLearning-Lead-to-ModelAlignment.git
+cd Does-ContinualLearning-Lead-to-ModelAlignment
 ```
 
-2. Create virtual environment:
+2. Create conda environment:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+conda create -n nlpdl python=3.9 -y
+conda activate nlpdl
 ```
 
 3. Install dependencies:
@@ -82,9 +82,25 @@ huggingface-cli login
 ### Quick Start
 
 Run the full pipeline (baseline + SFT + SDFT + evaluation):
+The original experiments were run on TPUs provided via Kaggle (TPU v5-8 pods), and will require this to utilise distributed TPU training.
 
+Use `Settings > Accelerators > TPU v5-8`, for the activating the TPUs if on Kaggle. You will need to include the following cell block in the beginning to get started with using TPUs on kaggle:
+```python
+import os
+os.environ.pop('TPU_PROCESS_ADDRESSES')
+```
+
+Installing necessary packages:
 ```bash
-python main.py full --model llama-1b --device tpu
+pip install --upgrade pip
+pip install torch torchvision torchaudio pytorch_adapt peft wandb weave protobuf==7.34.1
+pip install torch_xla[tpu] -f https://storage.googleapis.com/libtpu-releases/index.html
+pip install -r requirements.txt
+```
+
+Run the full pipeline (baseline + SFT + SDFT + evaluation):
+```bash
+python main.py full --model llama-1b --device tpu --phase1-dataset dolly --phase2-dataset stereoset
 ```
 
 ### Individual Commands
@@ -113,11 +129,11 @@ python main.py sft \
     --device tpu
 ```
 
-To skip specific phases:
+To skip specific phases (`--skip-phase1` skips general fine-tuning, `--skip-phase2` skips alignment fine-tuning):
 ```bash
 python main.py sft \
-    --skip-phase1 \  # Skip general fine-tuning
-    --skip-phase2    # Skip alignment fine-tuning
+    --skip-phase1 \
+    --skip-phase2
 ```
 
 #### 3. Self-Distillation Fine-Tuning (SDFT)
@@ -342,7 +358,7 @@ If you use this code, please cite:
 ```bibtex
 @software{llm_continual_alignment,
   title={LLM Continual Learning for Model Alignment},
-  author={Your Name},
+  author={Kausthubh Manda, Abhirath Adamane, Aaryan Bhansal},
   year={2024}
 }
 ```
